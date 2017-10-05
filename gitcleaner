@@ -49,7 +49,7 @@ if ($untrackedFiles) {
  * cd to nearest directory with a .git repo
  */
 function cdToGitRepo() {
-    while (!file_exists('.git')) {
+    while (!file_exists('.git') && file_exists('..')) {
         chdir('..');
         //echo "cwd " . getcwd() . "\n";
     }
