@@ -1,0 +1,158 @@
+#!/usr/bin/env php
+<?php
+//
+// gitcleaner
+// copyright (c) Rob Simmons 2017
+//
+// Wizard to delete some/all of the "untracked files" in your git status.
+//
+// git clean -n
+//   lists the files "git clean -df" would delete
+//
+// git clean -df
+//   deletes all files in the "untracked files" section of your git status
+//
+// If you like the output of "git clean -n", run "git clean -df"
+//
+// If you don't like the outut of "git clean -n", use gitcleaner!
+//
+//
+// Usage:
+// $ cd my_git_repo
+// $ gitcleaner
+// 
+
+
+$untrackedFiles = getUntrackedFiles();
+$queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
+if ($queuedForDerezz) {
+    $derezzConfirmed = confirmDerezz($queuedForDerezz);
+    if ($derezzConfirmed) {
+        derezz($queuedForDerezz);
+        echo "Files derezzed.\n";
+    } else {
+        echo "No files derezzed\n";
+    }
+} else {
+    echo "No files derezzed\n";
+}
+
+
+
+/**
+ * Get list of untracked files
+ *
+ * @return array[] filenames
+ */
+function getUntrackedFiles() {
+    $gitStatus = shell_exec('git status');
+    $lines = explode("\n", $gitStatus);
+
+    //echo "git status $gitStatus";
+
+    $hitUntrackedFilesLine = false;
+    $hitNewlineBufferLine = false;
+    $hitActualUntrackedFilesLine = false;
+    $untrackedFiles = [];
+
+    foreach ($lines as $line) {  
+        $line = trim($line);
+        //echo "\n>>>$line<<<\n";      
+        
+        if (preg_match('/^Untracked files:$/', $line)) {
+            if (!$hitUntrackedFilesLine) {
+                $hitUntrackedFilesLine = true;
+                //echo ">>> hit untracked files line line >>>$line<<<\n";
+            }
+        } else if (preg_match('/^$/', $line)) {
+            if (!$hitNewlineBufferLine && $hitUntrackedFilesLine && !$hitActualUntrackedFilesLine) {
+                $hitNewlineBufferLine = true;
+                //echo ">>> hit newline buffer line line >>>$line<<<\n";
+            }
+        } else if (preg_match('/^(.*)$/', $line)) {
+            if ($hitUntrackedFilesLine && $hitNewlineBufferLine) {
+                $hitActualUntrackedFilesLine = true;
+                //echo ">>> actual untracked file line line >>>$line<<<\n";
+                $untrackedFile = $line;
+                if ($untrackedFile) {
+                    $untrackedFiles[] = $untrackedFile;
+                }
+            }
+        }
+    }
+
+    //echo 'untracked files: ';
+    //print_r($untrackedFiles);
+    //echo "\n";
+
+    return $untrackedFiles;
+}
+
+/**
+ * Iterate over the list, using the prompter, gather and return results
+ *
+ * @param array $untrackedFiles
+ * @return array
+ */
+function promptPerUntrackedFiles(array $untrackedFiles) {
+    $queuedForDerezz = [];
+    foreach ($untrackedFiles as $untrackedFile) {
+        $potentialConfirmedFileForDerezz = promptPerUntrackedFile($untrackedFile);
+        if ($potentialConfirmedFileForDerezz) {
+            $queuedForDerezz[] = $potentialConfirmedFileForDerezz;
+        }
+    }
+
+    //print_r($queuedForDerezz);
+    return $queuedForDerezz;
+}
+
+/**
+ * The prompter individual file prompter
+ *
+ * @param string $untrackedFile
+ * @return false|string
+ */
+function promptPerUntrackedFile($untrackedFile) {
+    echo "Delete $untrackedFile? [Yn] ";
+    $handle = fopen("php://stdin", "r");
+    $line = trim(fgets($handle));
+    //echo "line >>>$line<<<\n";
+    
+    $return = false;
+    if ($line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes') {
+        $return = $untrackedFile;
+    }
+
+    fclose($handle);
+    return $return;
+}
+
+/**
+ * Are you sure?
+ */
+function confirmDerezz(array $queuedForDerezz) {
+    echo "The following are queued for deresolution:\n";
+    foreach ($queuedForDerezz as $file) {
+        echo "$file\n";
+    }
+    echo "Confirm deresolution? [Yn] ";
+    $handle = fopen("php://stdin", "r");
+    $line = trim(fgets($handle));
+    fclose($handle);
+
+    $return = $line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes';
+    return $return;
+}
+
+/**
+ * Delteded!
+ */
+function derezz(array $queuedForDerezz) {
+    foreach ($queuedForDerezz as $file) {
+        unlink($file);
+    }
+}
+
+
+
