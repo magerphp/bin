@@ -50,49 +50,10 @@ if ($untrackedFiles) {
  * @return array[] filenames
  */
 function getUntrackedFiles() {
-    $gitStatus = shell_exec('git status');
-    $lines = explode("\n", $gitStatus);
-
-    //echo "git status $gitStatus";
-
-    $hitUntrackedFilesLine = false;
-    $hitNewlineBufferLine = false;
-    $hitActualUntrackedFilesLine = false;
-    $untrackedFiles = [];
-
-    foreach ($lines as $line) {  
-        $line = trim($line);
-        //echo "\n>>>$line<<<\n";      
-        
-        if (preg_match('/^Untracked files:$/', $line)) {
-            // wait for "Untracked files" line
-            if (!$hitUntrackedFilesLine) {
-                $hitUntrackedFilesLine = true;
-                //echo ">>> hit untracked files line line >>>$line<<<\n";
-            }
-        } else if (preg_match('/^$/', $line)) {
-            // wait for newline after "Untracked files" line
-            if (!$hitNewlineBufferLine && $hitUntrackedFilesLine && !$hitActualUntrackedFilesLine) {
-                $hitNewlineBufferLine = true;
-                //echo ">>> hit newline buffer line line >>>$line<<<\n";
-            }
-        } else if (preg_match('/^(.*)$/', $line)) {
-            // wait for newline after "Untracked files" line
-            if ($hitUntrackedFilesLine && $hitNewlineBufferLine) {
-                $hitActualUntrackedFilesLine = true;
-                //echo ">>> actual untracked file line line >>>$line<<<\n";
-                $untrackedFile = $line;
-                if ($untrackedFile) {
-                    $untrackedFiles[] = $untrackedFile;
-                }
-            }
-        }
-    }
-
-    //echo 'untracked files: ';
+    $untrackedFiles = shell_exec('git ls-files --others --exclude-standard');
+    $untrackedFiles = explode("\n", $untrackedFiles);
+    array_pop($untrackedFiles); // gets rid of extra trailing line
     //print_r($untrackedFiles);
-    //echo "\n";
-
     return $untrackedFiles;
 }
 
@@ -131,6 +92,9 @@ function promptPerUntrackedFile($untrackedFile) {
     
     $return = $line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes';
     fclose($handle);
+
+    // todo also prompt for add?
+
     return $return;
 }
 
