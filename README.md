@@ -31,7 +31,6 @@ The following are queued for deresolution:
 f1
 Confirm deresolution? [Yn]
 Files derezzed.
-$
 ~~~
 
 copyright (c) Rob Simmons 2017

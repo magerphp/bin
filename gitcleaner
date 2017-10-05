@@ -62,16 +62,19 @@ function getUntrackedFiles() {
         //echo "\n>>>$line<<<\n";      
         
         if (preg_match('/^Untracked files:$/', $line)) {
+            // wait for "Untracked files" line
             if (!$hitUntrackedFilesLine) {
                 $hitUntrackedFilesLine = true;
                 //echo ">>> hit untracked files line line >>>$line<<<\n";
             }
         } else if (preg_match('/^$/', $line)) {
+            // wait for newline after "Untracked files" line
             if (!$hitNewlineBufferLine && $hitUntrackedFilesLine && !$hitActualUntrackedFilesLine) {
                 $hitNewlineBufferLine = true;
                 //echo ">>> hit newline buffer line line >>>$line<<<\n";
             }
         } else if (preg_match('/^(.*)$/', $line)) {
+            // wait for newline after "Untracked files" line
             if ($hitUntrackedFilesLine && $hitNewlineBufferLine) {
                 $hitActualUntrackedFilesLine = true;
                 //echo ">>> actual untracked file line line >>>$line<<<\n";
@@ -91,7 +94,7 @@ function getUntrackedFiles() {
 }
 
 /**
- * Iterate over the list, using the prompter, gather and return results
+ * Iterate over the list, using the individual prompter, gather and return results
  *
  * @param array $untrackedFiles
  * @return array
@@ -110,7 +113,7 @@ function promptPerUntrackedFiles(array $untrackedFiles) {
 }
 
 /**
- * The prompter individual file prompter
+ * The individual file prompter
  *
  * @param string $untrackedFile
  * @return false|string
@@ -131,7 +134,10 @@ function promptPerUntrackedFile($untrackedFile) {
 }
 
 /**
- * Are you sure?
+ * Are you sure? Is that your final answer?
+ * 
+ * @param array @queuedForDerezz
+ * @return bool
  */
 function confirmDerezz(array $queuedForDerezz) {
     echo "The following are queued for deresolution:\n";
@@ -148,7 +154,9 @@ function confirmDerezz(array $queuedForDerezz) {
 }
 
 /**
- * Delteded!
+ * Delteded! Unlinked! Kaput!
+ * 
+ * @param array $queuedForDerezz
  */
 function derezz(array $queuedForDerezz) {
     foreach ($queuedForDerezz as $file) {
