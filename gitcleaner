@@ -96,6 +96,7 @@ function getUntrackedFiles() {
     return $untrackedFiles;
 }
 
+
 /**
  * Iterate over the list, using the individual prompter, gather and return results
  *
@@ -114,6 +115,7 @@ function promptPerUntrackedFiles(array $untrackedFiles) {
     //print_r($queuedForDerezz);
     return $queuedForDerezz;
 }
+
 
 /**
  * The individual file prompter
@@ -136,6 +138,7 @@ function promptPerUntrackedFile($untrackedFile) {
     return $return;
 }
 
+
 /**
  * Are you sure? Is that your final answer?
  * 
@@ -156,6 +159,7 @@ function confirmDerezz(array $queuedForDerezz) {
     return $return;
 }
 
+
 /**
  * Delteded! Unlinked! Kaput!
  * 
@@ -166,6 +170,3 @@ function derezz(array $queuedForDerezz) {
         unlink($file);
     }
 }
-
-
-
