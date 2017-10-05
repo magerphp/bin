@@ -6,15 +6,17 @@
 //
 // Wizard to delete some/all of the "untracked files" in your git status.
 //
+// Some background:
+//
 // git clean -n
 //   lists the files "git clean -df" would delete
 //
 // git clean -df
 //   deletes all files in the "untracked files" section of your git status
 //
-// If you like the output of "git clean -n", run "git clean -df"
+// If you like the output of "git clean -n", run "git clean -df".
 //
-// If you don't like the outut of "git clean -n", use gitcleaner!
+// If you don't like the outut of "git clean -n", use gitcleaner! It lets you easily pick and choose which untracked files to delete.
 //
 //
 // Usage:
