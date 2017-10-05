@@ -106,9 +106,9 @@ function getUntrackedFiles() {
 function promptPerUntrackedFiles(array $untrackedFiles) {
     $queuedForDerezz = [];
     foreach ($untrackedFiles as $untrackedFile) {
-        $potentialConfirmedFileForDerezz = promptPerUntrackedFile($untrackedFile);
-        if ($potentialConfirmedFileForDerezz) {
-            $queuedForDerezz[] = $potentialConfirmedFileForDerezz;
+        $derezz = promptPerUntrackedFile($untrackedFile);
+        if ($derezz) {
+            $queuedForDerezz[] = $untrackedFile;
         }
     }
 
