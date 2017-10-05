@@ -26,19 +26,22 @@
 
 
 $untrackedFiles = getUntrackedFiles();
-$queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
-if ($queuedForDerezz) {
-    $derezzConfirmed = confirmDerezz($queuedForDerezz);
-    if ($derezzConfirmed) {
-        derezz($queuedForDerezz);
-        echo "Files derezzed.\n";
+if ($untrackedFiles) {
+    $queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
+    if ($queuedForDerezz) {
+        $derezzConfirmed = confirmDerezz($queuedForDerezz);
+        if ($derezzConfirmed) {
+            derezz($queuedForDerezz);
+            echo "Files derezzed.\n";
+        } else {
+            echo "No files derezzed\n";
+        }
     } else {
         echo "No files derezzed\n";
     }
 } else {
-    echo "No files derezzed\n";
+    echo "No files to derezz\n";
 }
-
 
 
 /**
