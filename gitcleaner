@@ -129,11 +129,7 @@ function promptPerUntrackedFile($untrackedFile) {
     $line = trim(fgets($handle));
     //echo "line >>>$line<<<\n";
     
-    $return = false;
-    if ($line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes') {
-        $return = $untrackedFile;
-    }
-
+    $return = $line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes';
     fclose($handle);
     return $return;
 }
