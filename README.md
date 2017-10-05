@@ -15,9 +15,9 @@ Some background:
 - git clean -df
     - deletes all files in the "untracked files" section of your git status
 
-- If you like the output of "git clean -n", run "git clean -df"
+- If you want to delete all files listed by of "git clean -n", run "git clean -df"
 
-- If you don't like the output of "git clean -n", use gitcleaner! 
+- If you only want to delete SOME of the files listed by "git clean -n", use gitcleaner! 
 It lets you easily pick and choose which untracked files to delete.
 
 
