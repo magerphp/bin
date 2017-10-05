@@ -25,6 +25,7 @@
 // 
 
 
+cdToGitRepo();
 $untrackedFiles = getUntrackedFiles();
 if ($untrackedFiles) {
     $queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
@@ -45,9 +46,20 @@ if ($untrackedFiles) {
 
 
 /**
+ * cd to nearest directory with a .git repo
+ */
+function cdToGitRepo() {
+    while (!file_exists('.git')) {
+        chdir('..');
+        //echo "cwd " . getcwd() . "\n";
+    }
+}
+
+
+/**
  * Get list of untracked files
  *
- * @return array[] filenames
+ * @return array
  */
 function getUntrackedFiles() {
     $untrackedFiles = shell_exec('git ls-files --others --exclude-standard');
@@ -87,14 +99,11 @@ function promptPerUntrackedFiles(array $untrackedFiles) {
 function promptPerUntrackedFile($untrackedFile) {
     echo "Delete $untrackedFile? [Yn] ";
     $handle = fopen("php://stdin", "r");
-    $line = trim(fgets($handle));
+    $userInput = trim(fgets($handle));
+    fclose($handle);
     //echo "line >>>$line<<<\n";
     
-    $return = $line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes';
-    fclose($handle);
-
-    // todo also prompt for add?
-
+    $return = getBoolFromUserInput($userInput);
     return $return;
 }
 
@@ -112,11 +121,22 @@ function confirmDerezz(array $queuedForDerezz) {
     }
     echo "Confirm deresolution? [Yn] ";
     $handle = fopen("php://stdin", "r");
-    $line = trim(fgets($handle));
+    $userInput = trim(fgets($handle));
     fclose($handle);
 
-    $return = $line === '' || strtolower($line) === 'y' || strtolower($line) === 'yes';
+    $return = getBoolFromUserInput($userInput);
     return $return;
+}
+
+/**
+ * Turn user input into boolean and return it!
+ *
+ * @param string $userInput
+ * @return bool
+ */
+function getBoolFromUserInput($userInput) {
+    $bool = $userInput === '' || strtolower($userInput) === 'y' || strtolower($userInput) === 'yes';
+    return $bool;
 }
 
 
@@ -130,3 +150,4 @@ function derezz(array $queuedForDerezz) {
         unlink($file);
     }
 }
+
