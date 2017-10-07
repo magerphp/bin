@@ -25,34 +25,69 @@
 // 
 
 
-cdToGitRepo();
-$untrackedFiles = getUntrackedFiles();
-if ($untrackedFiles) {
-    $queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
-    if ($queuedForDerezz) {
-        $derezzConfirmed = confirmDerezz($queuedForDerezz);
-        if ($derezzConfirmed) {
-            derezz($queuedForDerezz);
-            echo "Files derezzed.\n";
+$foundGitRepo = cdToGitRepo();
+if ($foundGitRepo) {
+    $confirmedGitRepo = confirmGitRepo($foundGitRepo);
+    if ($confirmedGitRepo) {
+        $untrackedFiles = getUntrackedFiles();
+        if ($untrackedFiles) {
+            $queuedForDerezz = promptPerUntrackedFiles($untrackedFiles);
+            if ($queuedForDerezz) {
+                $derezzConfirmed = confirmDerezz($queuedForDerezz);
+                if ($derezzConfirmed) {
+                    derezz($queuedForDerezz);
+                    echo "Files derezzed.\n";
+                } else {
+                    echo "No files derezzed\n";
+                }
+            } else {
+                echo "No files derezzed\n";
+            }
         } else {
-            echo "No files derezzed\n";
+            echo "No files to derezz\n";
         }
     } else {
-        echo "No files derezzed\n";
+        echo "Exiting\n";
     }
 } else {
-    echo "No files to derezz\n";
+    echo "No git repo found\n";
+}
+
+
+
+/**
+ * cd to nearest directory with a .git repo, and return the directoryname containing a .git, or false
+ * 
+ * @return false|string
+ */
+function cdToGitRepo() {
+    $foundGitRepo = getcwd();
+    if (!file_exists('.git')) {
+        while (!file_exists('.git') && file_exists('..')) {
+            chdir('..');
+            //echo "cwd " . getcwd() . "\n";
+        }
+        
+        if (file_exists('.git')) {
+            $foundGitRepo = getcwd();
+        } else {
+            $foundGitRepo = false;
+        }
+    }
+    
+    return $foundGitRepo;
 }
 
 
 /**
- * cd to nearest directory with a .git repo
+ * prompt user about the found git repo
+ * 
+ * @return bool
  */
-function cdToGitRepo() {
-    while (!file_exists('.git') && file_exists('..')) {
-        chdir('..');
-        //echo "cwd " . getcwd() . "\n";
-    }
+function confirmGitRepo($foundGitRepo) {
+    echo "Found git repo $foundGitRepo. Is this correct? [Yn] ";
+    $userInput = getUserInput();
+    return $userInput;
 }
 
 
@@ -98,13 +133,8 @@ function promptPerUntrackedFiles(array $untrackedFiles) {
  */
 function promptPerUntrackedFile($untrackedFile) {
     echo "Delete $untrackedFile? [Yn] ";
-    $handle = fopen("php://stdin", "r");
-    $userInput = trim(fgets($handle));
-    fclose($handle);
-    //echo "line >>>$line<<<\n";
-    
-    $return = getBoolFromUserInput($userInput);
-    return $return;
+    $userInput = getUserInput();
+    return $userInput;
 }
 
 
@@ -120,21 +150,22 @@ function confirmDerezz(array $queuedForDerezz) {
         echo "$file\n";
     }
     echo "Confirm deresolution? [Yn] ";
+    
+    $userInput = getUserInput();
+    return $userInput;
+}
+
+
+/**
+ * Get the user's input turned into a boolean
+ * 
+ * @return bool
+ */
+function getUserInput() {
     $handle = fopen("php://stdin", "r");
     $userInput = trim(fgets($handle));
     fclose($handle);
-
-    $return = getBoolFromUserInput($userInput);
-    return $return;
-}
-
-/**
- * Turn user input into boolean and return it!
- *
- * @param string $userInput
- * @return bool
- */
-function getBoolFromUserInput($userInput) {
+    
     $bool = $userInput === '' || strtolower($userInput) === 'y' || strtolower($userInput) === 'yes';
     return $bool;
 }
